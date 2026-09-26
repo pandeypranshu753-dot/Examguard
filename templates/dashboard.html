@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header>
+
+        <div class="logo">
+            Exam<span>Guard</span>
+        </div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="/logout">Logout</a>
+        </nav>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <h1>Student Dashboard</h1>
+
+        <p class="dashboard-subtitle">
+            Welcome to ExamGuard
+        </p>
+
+
+        <div class="dashboard-cards">
+
+            <div class="dashboard-card">
+                <h2>📝 Available Exam</h2>
+
+                <p>
+                    Computer Science Fundamentals
+                </p>
+
+                <p>
+                    Questions: 20
+                </p>
+
+                <p>
+                    Duration: 30 minutes
+                </p>
+
+            <a href="/exam" class="btn">Start Exam</a>
+            <a href="/proctoring-logs" class="btn">📋 View Proctoring Logs</a>
+            </div>
+
+
+            <div class="dashboard-card">
+                <h2>📊 Results</h2>
+
+                <p>
+                    View your previous examination results.
+                </p>
+
+               <a href="/results" class="btn">View Results</a> 
+            </div>
+
+
+            <div class="dashboard-card">
+                <h2>📷 Proctoring</h2>
+
+                <p>
+                    Webcam monitoring will be enabled
+                    during the examination.
+                </p>
+
+                <span class="status">
+                    Ready
+                </span>
+            </div>
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>

@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CSE Exam | ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        .camera-box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            text-align: center;
+        }
+
+        #camera {
+            width: 320px;
+            max-width: 100%;
+            border-radius: 10px;
+            background: #111;
+            margin-top: 10px;
+        }
+
+        #camera-status {
+            margin-top: 10px;
+            color: #64748b;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question label {
+            display: block;
+            margin: 10px 0;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+            padding: 14px 30px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+    </style>
+
+</head>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+
+
+<body>
+
+    <header>
+
+        <div class="logo">
+            Exam<span>Guard</span>
+        </div>
+
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+        </nav>
+
+    </header>
+
+
+    <div class="dashboard">
+
+        <h1>CSE Online Examination</h1>
+
+        <p class="dashboard-subtitle">
+            Answer all 20 questions before submitting your exam.
+        </p>
+
+
+        <!-- CAMERA PROCTORING -->
+
+        <div class="camera-box">
+
+            <h3>📷 Exam Proctoring</h3>
+
+            <video id="camera"
+                   autoplay
+                   playsinline>
+            </video>
+
+            <p id="camera-status">
+                Requesting camera access...
+            </p>
+            <p id="tab-warning" style="color:red; font-weight:bold;"></p>
+
+
+        </div>
+
+
+        <!-- EXAM -->
+
+        <div class="dashboard-card" style="width: 100%;">
+
+            <h2>
+                Time Remaining:
+                <span id="timer">30:00</span>
+            </h2>
+
+
+            <form action="/result" method="POST">
+
+
+                <!-- QUESTION 1 -->
+
+                <div class="question">
+
+                    <h3>
+                        1. Which component is known as the brain of a computer?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q1" value="a" required>
+                        CPU
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="b">
+                        RAM
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="c">
+                        Hard Disk
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q1" value="d">
+                        Monitor
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 2 -->
+
+                <div class="question">
+
+                    <h3>
+                        2. Which language is used to create the structure of a web page?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q2" value="a" required>
+                        CSS
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="b">
+                        HTML
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="c">
+                        Python
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q2" value="d">
+                        SQL
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 3 -->
+
+                <div class="question">
+
+                    <h3>
+                        3. Which data structure follows FIFO?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q3" value="a" required>
+                        Stack
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="b">
+                        Queue
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="c">
+                        Tree
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q3" value="d">
+                        Graph
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 4 -->
+
+                <div class="question">
+
+                    <h3>
+                        4. Which of the following is an operating system?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q4" value="a" required>
+                        Windows
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="b">
+                        HTML
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="c">
+                        MySQL
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q4" value="d">
+                        Python
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 5 -->
+
+                <div class="question">
+
+                    <h3>
+                        5. Which protocol is used for web communication?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q5" value="a" required>
+                        HTTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="b">
+                        FTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="c">
+                        SMTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q5" value="d">
+                        SSH
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 6 -->
+
+                <div class="question">
+
+                    <h3>
+                        6. Which language is commonly used to manage relational databases?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q6" value="a" required>
+                        SQL
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q6" value="b">
+                        HTML
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q6" value="c">
+                        CSS
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q6" value="d">
+                        XML
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 7 -->
+
+                <div class="question">
+
+                    <h3>
+                        7. Which data structure follows LIFO?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q7" value="a" required>
+                        Queue
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q7" value="b">
+                        Stack
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q7" value="c">
+                        Array
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q7" value="d">
+                        Graph
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 8 -->
+
+                <div class="question">
+
+                    <h3>
+                        8. Which programming language is known for its simple syntax?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q8" value="a" required>
+                        Python
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q8" value="b">
+                        Assembly
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q8" value="c">
+                        Machine Code
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q8" value="d">
+                        COBOL
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 9 -->
+
+                <div class="question">
+
+                    <h3>
+                        9. What does RAM stand for?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q9" value="a" required>
+                        Random Access Memory
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q9" value="b">
+                        Read Access Memory
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q9" value="c">
+                        Rapid Access Module
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q9" value="d">
+                        Read And Modify
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 10 -->
+
+                <div class="question">
+
+                    <h3>
+                        10. Which device connects different networks?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q10" value="a" required>
+                        Router
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q10" value="b">
+                        Keyboard
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q10" value="c">
+                        Monitor
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q10" value="d">
+                        Printer
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 11 -->
+
+                <div class="question">
+
+                    <h3>
+                        11. Which sorting algorithm repeatedly swaps adjacent elements?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q11" value="a" required>
+                        Bubble Sort
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q11" value="b">
+                        Merge Sort
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q11" value="c">
+                        Quick Sort
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q11" value="d">
+                        Heap Sort
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 12 -->
+
+                <div class="question">
+
+                    <h3>
+                        12. What does CPU stand for?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q12" value="a" required>
+                        Central Processing Unit
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q12" value="b">
+                        Computer Processing Utility
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q12" value="c">
+                        Central Program Unit
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q12" value="d">
+                        Computer Power Unit
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 13 -->
+
+                <div class="question">
+
+                    <h3>
+                        13. Which technology is used to style web pages?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q13" value="a" required>
+                        CSS
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q13" value="b">
+                        SQL
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q13" value="c">
+                        Python
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q13" value="d">
+                        C++
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 14 -->
+
+                <div class="question">
+
+                    <h3>
+                        14. Which of the following is a relational database system?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q14" value="a" required>
+                        MySQL
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q14" value="b">
+                        Photoshop
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q14" value="c">
+                        Linux
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q14" value="d">
+                        Chrome
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 15 -->
+
+                <div class="question">
+
+                    <h3>
+                        15. Which symbol represents an ID selector in CSS?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q15" value="a" required>
+                        #
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q15" value="b">
+                        .
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q15" value="c">
+                        *
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q15" value="d">
+                        @
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 16 -->
+
+                <div class="question">
+
+                    <h3>
+                        16. Which HTML tag represents the largest heading?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q16" value="a" required>
+                        &lt;h1&gt;
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q16" value="b">
+                        &lt;h6&gt;
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q16" value="c">
+                        &lt;head&gt;
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q16" value="d">
+                        &lt;title&gt;
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 17 -->
+
+                <div class="question">
+
+                    <h3>
+                        17. Which CSS selector selects all elements?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q17" value="a" required>
+                        *
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q17" value="b">
+                        #
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q17" value="c">
+                        .
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q17" value="d">
+                        @
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 18 -->
+
+                <div class="question">
+
+                    <h3>
+                        18. Which number system is used by computers?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q18" value="a" required>
+                        Binary
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q18" value="b">
+                        Decimal
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q18" value="c">
+                        Octal
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q18" value="d">
+                        Roman
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 19 -->
+
+                <div class="question">
+
+                    <h3>
+                        19. Which protocol is commonly used for sending email?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q19" value="a" required>
+                        SMTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q19" value="b">
+                        HTTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q19" value="c">
+                        FTP
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q19" value="d">
+                        DNS
+                    </label>
+
+                </div>
+
+
+                <!-- QUESTION 20 -->
+
+                <div class="question">
+
+                    <h3>
+                        20. Which field enables computers to learn from data?
+                    </h3>
+
+                    <label>
+                        <input type="radio" name="q20" value="a" required>
+                        Machine Learning
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q20" value="b">
+                        Web Design
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q20" value="c">
+                        Networking
+                    </label>
+
+                    <label>
+                        <input type="radio" name="q20" value="d">
+                        Operating Systems
+                    </label>
+
+                </div>
+
+
+                <button type="submit" class="submit-btn">
+                    Submit Exam
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- CAMERA SCRIPT -->
+
+   <script>
+
+const video = document.getElementById("camera");
+const cameraStatus = document.getElementById("camera-status");
+const tabWarning = document.getElementById("tab-warning");
+
+let examSubmitted = false;
+let tabSwitchCount = 0;
+
+
+/* =========================
+   FACE DETECTION
+========================= */
+
+const faceDetection = new FaceDetection({
+    locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
+});
+
+faceDetection.setOptions({
+    model: "short",
+    minDetectionConfidence: 0.5
+});
+
+let lastFaceStatus = null;
+
+faceDetection.onResults(function(results) {
+
+    let currentFaceStatus;
+
+    if (results.detections.length === 0) {
+
+        currentFaceStatus = "no_face_detected";
+
+        cameraStatus.innerText =
+            "⚠️ No face detected!";
+
+    } else if (results.detections.length > 1) {
+
+        currentFaceStatus = "multiple_faces";
+
+        cameraStatus.innerText =
+            "⚠️ Multiple faces detected!";
+
+    } else {
+
+        currentFaceStatus = "face_detected";
+
+        cameraStatus.innerText =
+            "Face detected. Proctoring active.";
+
+    }
+
+    if (currentFaceStatus !== lastFaceStatus) {
+
+        lastFaceStatus = currentFaceStatus;
+
+        fetch("/proctoring-event", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                event: currentFaceStatus
+            })
+        });
+
+    }
+
+});
+
+
+/* =========================
+   CAMERA
+========================= */
+
+navigator.mediaDevices.getUserMedia({
+    video: true,
+    audio: false
+})
+.then(function(stream) {
+
+    video.srcObject = stream;
+
+    cameraStatus.innerText =
+        "Camera is active. Proctoring is enabled.";
+
+})
+.catch(function(error) {
+
+    console.error(error);
+
+    cameraStatus.innerText =
+        "❌ Camera access denied or unavailable.";
+
+});
+
+
+/* =========================
+   RUN FACE DETECTION
+========================= */
+
+setInterval(async function() {
+
+    if (video.readyState >= 2) {
+
+        try {
+
+            await faceDetection.send({
+                image: video
+            });
+
+        } catch (error) {
+
+            console.error("Face detection error:", error);
+
+        }
+
+    }
+
+}, 500);
+
+
+/* =========================
+   TAB SWITCH DETECTION
+========================= */
+
+let lastVisibilityState = "visible";
+let lastTabSwitchTime = 0;
+
+document.addEventListener("visibilitychange", function() {
+
+    const currentState = document.visibilityState;
+
+    // Only process an actual visibility change
+    if (currentState === lastVisibilityState) {
+        return;
+    }
+
+    lastVisibilityState = currentState;
+
+    if (currentState === "hidden") {
+        const now = Date.now();
+
+if (now - lastTabSwitchTime < 2000) {
+    return;
+}
+
+lastTabSwitchTime = now;
+
+        tabSwitchCount++;
+
+        tabWarning.innerText =
+            "⚠️ WARNING: You switched away from the exam tab! " +
+            "Warning count: " + tabSwitchCount;
+
+        console.log("WARNING: Exam tab switched!");
+
+        fetch("/proctoring-event", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                event: "tab_switch",
+                warning_count: tabSwitchCount
+            })
+        });
+
+    } else {
+
+        tabWarning.innerText =
+            "⚠️ WARNING: You returned to the exam after switching tabs. " +
+            "Warning count: " + tabSwitchCount;
+
+        fetch("/proctoring-event", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                event: "returned_to_exam",
+                warning_count: tabSwitchCount
+            })
+        });
+
+    }
+
+});
+/* =========================
+   TIMER
+========================= */
+
+let time = 30 * 60;
+
+let timer = setInterval(function() {
+
+    let minutes = Math.floor(time / 60);
+    let seconds = time % 60;
+
+    document.getElementById("timer").innerHTML =
+        minutes + ":" +
+        (seconds < 10 ? "0" : "") +
+        seconds;
+
+    if (time <= 0) {
+
+        clearInterval(timer);
+
+        if (!examSubmitted) {
+
+            examSubmitted = true;
+
+            alert(
+                "Time is up! Your exam will be submitted automatically."
+            );
+
+            document.querySelector("form").submit();
+
+        }
+
+        return;
+
+    }
+
+    time--;
+
+}, 1000);
+
+
+/* =========================
+   PREVENT DOUBLE SUBMISSION
+========================= */
+
+document.querySelector("form").addEventListener("submit", function() {
+
+    examSubmitted = true;
+
+});
+
+</script>
+
+</body>
+
+</html>

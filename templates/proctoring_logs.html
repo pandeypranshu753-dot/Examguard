@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Proctoring Logs - ExamGuard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Proctoring Logs</h1>
+
+        <p>Student: {{ session["username"] }}</p>
+
+        {% if events %}
+
+        <table border="1" cellpadding="10">
+            <tr>
+                <th>Event</th>
+                <th>Warning Count</th>
+                <th>Time</th>
+            </tr>
+
+            {% for event in events %}
+            <tr>
+                <td>{{ event[0] }}</td>
+                <td>{{ event[1] }}</td>
+                <td>{{ event[2] }}</td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+        {% else %}
+
+        <p>No proctoring events recorded.</p>
+
+        {% endif %}
+
+        <br>
+
+        <a href="/dashboard">Back to Dashboard</a>
+
+    </div>
+
+</body>
+</html>

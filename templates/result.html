@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Result | ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <div class="result-container">
+
+        <div class="result-card">
+
+            <h1>Exam Completed 🎉</h1>
+
+            <p>Your result has been calculated.</p>
+
+            <div class="score">
+                {{ score }} / {{ total }}
+            </div>
+
+            <p>
+                You answered {{ score }} question(s) correctly.
+            </p>
+            <div class="proctoring-result">
+    <h3>Proctoring Status</h3>
+    <p>⚠️ Tab switches detected: {{ tab_switches }}</p>
+
+    {% if proctoring_status == "Suspicious" %}
+        <p>⚠️ Suspicious activity detected</p>
+    {% else %}
+        <p>✅ Normal</p>
+    {% endif %}
+</div>
+
+            <a href="/dashboard" class="btn">
+                Back to Dashboard
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>
