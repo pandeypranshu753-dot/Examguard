@@ -3,10 +3,41 @@ from werkzeug.security import check_password_hash
 from database import create_database
 import sqlite3
 from datetime import datetime
+import re
 
+
+class username:
+    """Validated username value used by the authentication workflow."""
+
+    def __init__(self, value):
+        if not isinstance(value, str):
+            raise TypeError("username must be a string")
+
+        value = value.strip()
+        if not re.fullmatch(r"[A-Za-z0-9_]{3,30}", value):
+            raise ValueError(
+                "Username must be 3-30 characters and contain only letters, numbers, or underscores."
+            )
+        self.value = value
+
+    def __str__(self):
+        return self.value
+
+    def __repr__(self):
+        return f"username({self.value!r})"
+
+    def __eq__(self, other):
+        if isinstance(other, username):
+            return self.value.casefold() == other.value.casefold()
+        if isinstance(other, str):
+            return self.value.casefold() == other.strip().casefold()
+        return NotImplemented
+
+    def __hash__(self):
+        return hash(self.value.casefold())
 
 app = Flask(__name__)
-app.secret_key = "examguard-secret-key"
+app.secret_key = "YOUR_NEW_KEY"
 
 create_database()
 
@@ -18,13 +49,85 @@ create_database()
 @app.route("/")
 def home():
     return render_template("index.html")
+#------------------------------
+#forgot password
+#------------------------------
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+
+    if request.method == "POST":
+        username = request.form["username"]
+        security_answer = request.form["security_answer"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+        security_question = request.form["security_question"]
+        security_answer = request.form["security_answer"]
+        if len(password) < 8:
+            return "Password must be at least 8 characters long."
+
+        if not re.search(r"[A-Z]", password):
+            return "Password must contain at least one uppercase letter."
+
+        if not re.search(r"[a-z]", password):
+            return "Password must contain at least one lowercase letter."
+
+        if not re.search(r"[0-9]", password):
+            return "Password must contain at least one number."
+
+        if not re.search(r"[!@#$%^&*]", password):
+            return "Password must contain at least one special character."
+
+        if password != confirm_password:
+            return "Passwords do not match."
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+
+        # Check whether the username exists
+        cursor.execute(
+            "SELECT * FROM students WHERE username = ?",
+            (username,)
+        )
+
+        student = cursor.fetchone()
+
+        if not student:
+            connection.close()
+            return "Username not found."
+
+        # Check the security answer
+        if student[4] != security_answer:
+            connection.close()
+            return "Incorrect security answer."
+      
+
+        
+        # Hash the new password
+        from werkzeug.security import generate_password_hash
+
+        hashed_password = generate_password_hash(password)
+
+        cursor.execute(
+            """
+            UPDATE students
+            SET password = ?
+            WHERE username = ?
+            """,
+            (hashed_password, username)
+        )
+
+        connection.commit()
+        connection.close()
+
+        return redirect("/login")
+
+    return render_template("forgot_password.html")
 
 
 # =========================
 # LOGIN
 # =========================
+@app.route("/login",methods=["GET", "POST"])
 
-@app.route("/login", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
@@ -51,6 +154,85 @@ def login():
         return "Invalid username or password"
 
     return render_template("login.html")
+#--------------------
+#registration
+#--------------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm_password = request.form["confirm_password"]
+
+        security_question = request.form["security_question"]
+        security_answer = request.form["security_answer"].strip().lower()
+
+        # Password length check
+        if len(password) < 8:
+            return "Password must be at least 8 characters long."
+
+        # Uppercase letter check
+        if not re.search(r"[A-Z]", password):
+            return "Password must contain at least one uppercase letter."
+
+        # Lowercase letter check
+        if not re.search(r"[a-z]", password):
+            return "Password must contain at least one lowercase letter."
+
+        # Number check
+        if not re.search(r"[0-9]", password):
+            return "Password must contain at least one number."
+
+        # Special character check
+        if not re.search(r"[!@#$%^&*]", password):
+            return "Password must contain at least one special character."
+
+        # Confirm password
+        if password != confirm_password:
+            return "Passwords do not match."
+
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+
+        # Check whether username already exists
+        cursor.execute(
+            "SELECT * FROM students WHERE username = ?",
+            (username,)
+        )
+
+        existing_student = cursor.fetchone()
+
+        if existing_student:
+            connection.close()
+            return "Username already exists. Please choose another username."
+
+        # Hash the password before storing it
+        from werkzeug.security import generate_password_hash
+
+        hashed_password = generate_password_hash(password)
+        cursor.execute(
+    """
+    INSERT INTO students
+    (username, password, security_question, security_answer)
+    VALUES (?, ?, ?, ?)
+    """,
+    (
+        username,
+        hashed_password,
+        security_question,
+        security_answer
+    )
+)
+       
+        
+
+        connection.commit()
+        connection.close()
+
+        return redirect("/login")
+
+    return render_template("register.html")
 # =========================
 # DASHBOARD
 # =========================
@@ -62,6 +244,13 @@ def dashboard():
         return redirect("/login")
 
     return render_template("dashboard.html")
+#-----------------------------------
+#logout
+#-----------------------------------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 # =========================
 # EXAM PAGE
 # =========================
@@ -303,10 +492,13 @@ def result():
     }
 
     score = 0
+    attempted=0
 
     for question, correct_answer in answers.items():
 
         selected_answer = request.form.get(question)
+        if selected_answer:
+            attempted += 1
 
         if selected_answer == correct_answer:
             score += 1
@@ -384,6 +576,7 @@ def result():
     "result.html",
     score=score,
     total=total,
+    attempted=attempted,
     proctoring_status=proctoring_status,
     tab_switches=tab_switches
 )

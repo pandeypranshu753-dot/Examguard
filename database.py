@@ -14,6 +14,23 @@ def create_database():
         password TEXT NOT NULL
     )
 """)
+
+    try:
+        cursor.execute("""
+            ALTER TABLE students
+            ADD COLUMN security_question TEXT
+        """)
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("""
+            ALTER TABLE students
+            ADD COLUMN security_answer TEXT
+        """)
+    except sqlite3.OperationalError:
+        pass
+    
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS results (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
