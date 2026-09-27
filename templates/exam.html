@@ -883,6 +883,9 @@ let lastVisibilityState = "visible";
 let lastTabSwitchTime = 0;
 
 document.addEventListener("visibilitychange", function() {
+    if (examSubmitted) {
+        return;
+    }
 
     const currentState = document.visibilityState;
 
