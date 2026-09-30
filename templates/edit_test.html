@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Test - ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Exam<span>Guard</span>
+    </div>
+
+    <nav>
+        <a href="/admin">Admin Dashboard</a>
+        <a href="/logout">Logout</a>
+    </nav>
+
+</header>
+
+
+<main class="login-container">
+
+    <div class="login-box">
+
+        <h1>✏️ Edit Test</h1>
+
+        <form method="POST">
+
+            <label>Test Title</label>
+
+            <input
+                type="text"
+                name="title"
+                value="{{ test[1] }}"
+                required
+            >
+
+
+            <label>Subject</label>
+
+            <input
+                type="text"
+                name="subject"
+                value="{{ test[2] }}"
+                required
+            >
+
+
+            <label>Duration (minutes)</label>
+
+            <input
+                type="number"
+                name="duration"
+                value="{{ test[3] }}"
+                min="1"
+                required
+            >
+
+
+            <label>Number of Questions</label>
+
+            <input
+                type="number"
+                name="question_count"
+                value="{{ test[4] }}"
+                min="1"
+                required
+            >
+
+
+            <button type="submit" class="btn">
+                💾 Save Changes
+            </button>
+
+        </form>
+
+
+        <br>
+
+        <a href="/admin" class="btn">
+            ← Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</main>
+
+</body>
+
+</html>

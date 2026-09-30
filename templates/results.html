@@ -44,7 +44,9 @@
 
                     <div class="dashboard-card">
 
-                        <h2>Exam Attempt {{ loop.index }}</h2>
+                       <h2>
+    {{ result[6] if result[6] else "Exam Attempt " ~ loop.index }}
+</h2>
 
                         <p>
     <strong>Score:</strong>
@@ -59,28 +61,27 @@
 
         <div class="answer-item">
 
-            <p>
-                <strong>Question:</strong>
-                {{ question_text[answer[0]] }}
-            </p>
+          <p>
+    <strong>Question:</strong>
+    {{ answer[0] }}
+</p>
 
-            <p>
+<p>
     <strong>Your Answer:</strong>
 
     {% if answer[1] %}
-        {{ option_text[answer[0]][answer[1]] }}
+        {{ answer[1] | upper }}
     {% else %}
         Not Answered
     {% endif %}
-
 </p>
 
 <p>
     <strong>Correct Answer:</strong>
-    {{ option_text[answer[0]][answer[2]] }}
+    {{ answer[2] | upper }}
 </p>
 
-            {% if answer[1] == answer[2] %}
+          {% if answer[1]|lower == answer[2]|lower %}
                 <p><strong>Status:</strong> Correct</p>
             {% else %}
                 <p><strong>Status:</strong> Incorrect</p>

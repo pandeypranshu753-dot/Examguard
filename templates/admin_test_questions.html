@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Add Questions - ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header>
+
+    <h2>ExamGuard Admin</h2>
+
+    <nav>
+
+        <a href="/admin">Admin Dashboard</a>
+
+        <a href="/logout">Logout</a>
+
+    </nav>
+
+</header>
+
+
+<main class="login-container">
+
+    <div class="login-box">
+
+        <h1>Add Questions</h1>
+
+
+        {% if test %}
+
+            <!-- Test Information -->
+
+            <h2>{{ test[0] }}</h2>
+
+            <p>
+                <strong>Subject:</strong> {{ test[1] }}
+            </p>
+
+            <p>
+                <strong>Duration:</strong> {{ test[2] }} minutes
+            </p>
+
+            <p>
+                <strong>
+                    Questions Added:
+                    {{ questions|length }} / {{ test_question_count }}
+                </strong>
+            </p>
+
+            <hr>
+
+
+            <!-- Add Question -->
+
+            <h2>Add New Question</h2>
+
+
+            {% if questions|length < test_question_count %}
+
+                <form method="POST">
+
+                    <label>Question</label>
+
+                    <textarea
+                        name="question"
+                        rows="4"
+                        placeholder="Enter the question"
+                        required
+                    ></textarea>
+
+
+                    <label>Option A</label>
+
+                    <input
+                        type="text"
+                        name="option_a"
+                        placeholder="Enter option A"
+                        required
+                    >
+
+
+                    <label>Option B</label>
+
+                    <input
+                        type="text"
+                        name="option_b"
+                        placeholder="Enter option B"
+                        required
+                    >
+
+
+                    <label>Option C</label>
+
+                    <input
+                        type="text"
+                        name="option_c"
+                        placeholder="Enter option C"
+                        required
+                    >
+
+
+                    <label>Option D</label>
+
+                    <input
+                        type="text"
+                        name="option_d"
+                        placeholder="Enter option D"
+                        required
+                    >
+
+
+                    <label>Correct Answer</label>
+
+                    <select name="correct_answer" required>
+
+                        <option value="">
+                            Select correct answer
+                        </option>
+
+                        <option value="A">
+                            Option A
+                        </option>
+
+                        <option value="B">
+                            Option B
+                        </option>
+
+                        <option value="C">
+                            Option C
+                        </option>
+
+                        <option value="D">
+                            Option D
+                        </option>
+
+                    </select>
+
+
+                    <button type="submit">
+                        Add Question
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <p>
+                    <strong>Question limit reached.</strong>
+                </p>
+
+                <p>
+                    You have added all
+                    {{ test_question_count }}
+                    questions required for this test.
+                </p>
+
+            {% endif %}
+
+
+            <hr>
+
+
+            <!-- Questions Already Added -->
+
+            <h2>Questions Added</h2>
+
+
+            {% if questions %}
+
+                {% for question in questions %}
+              <a href="/admin/question/{{ question[0] }}/edit?test_id={{ test_id }}" class="btn">
+    ✏️ Edit Question
+</a>
+<form method="POST"
+      action="/admin/question/{{ question[0] }}/delete?test_id={{ test_id }}"
+      onsubmit="return confirm('Are you sure you want to delete this question?');">
+
+    <button type="submit">
+        🗑️ Delete Question
+    </button>
+
+</form>
+
+                    <div class="test-paper-card">
+
+                        <h3>
+                            Question {{ loop.index }}
+                        </h3>
+
+                        <p>
+                            {{ question[1] }}
+                        </p>
+
+                        <p>
+                            <strong>A.</strong> {{ question[2] }}
+                        </p>
+
+                        <p>
+                            <strong>B.</strong> {{ question[3] }}
+                        </p>
+
+                        <p>
+                            <strong>C.</strong> {{ question[4] }}
+                        </p>
+
+                        <p>
+                            <strong>D.</strong> {{ question[5] }}
+                        </p>
+
+                        <p>
+                            <strong>
+                                Correct Answer:
+                                {{ question[6] }}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                    <hr>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>
+                    No questions added yet.
+                </p>
+
+            {% endif %}
+
+
+            <!-- Publish Test -->
+
+            <hr>
+
+            <h2>Publish Test</h2>
+
+            {% if questions|length == test_question_count %}
+
+                <form
+                    method="POST"
+                    action="/admin/test/{{ test_id }}/publish"
+                >
+
+                    <button type="submit">
+                        🚀 Publish Test
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <p>
+                    Add exactly
+                    {{ test_question_count }}
+                    questions before publishing.
+                </p>
+
+            {% endif %}
+
+
+        {% else %}
+
+            <p>
+                Test paper not found.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+
+</body>
+
+</html>

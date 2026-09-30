@@ -17,13 +17,22 @@
 
         <div class="result-card">
 
-            <h1>Exam Completed 🎉</h1>
+            <h1>{{ test_name }}</h1>
+
+<h2>Exam Completed 🎉</h2>
 
             <p>Your result has been calculated.</p>
+            <p>
+    <strong>Subject:</strong>
+    {{ test_subject }}
+</p>
 
-            <div class="score">
-                {{ score }} / {{ total }}
-            </div>
+<p>
+    <strong>Duration:</strong>
+    {{ test_duration }} minutes
+</p>
+
+           
                  <div class="score">
                 {{ score }} / {{ total }}
             </div>

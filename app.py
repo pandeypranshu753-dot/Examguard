@@ -126,8 +126,7 @@ def forgot_password():
 # =========================
 # LOGIN
 # =========================
-@app.route("/login",methods=["GET", "POST"])
-
+@app.route("/login", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
@@ -148,7 +147,12 @@ def login():
         connection.close()
 
         if student and check_password_hash(student[2], password):
+
             session["username"] = username
+
+            if username == "admin":
+                return redirect("/admin")
+
             return render_template("dashboard.html")
 
         return "Invalid username or password"
@@ -233,6 +237,469 @@ def register():
         return redirect("/login")
 
     return render_template("register.html")
+#--------------------------
+#  admin
+#--------------------------
+@app.route("/admin")
+def admin_dashboard():
+
+    # Only admin can access
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, title, subject, duration, status,question_count
+        FROM test_papers
+        ORDER BY id DESC
+    """)
+
+    test_papers = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "admin_dashboard.html",
+        test_papers=test_papers
+    )
+@app.route("/admin/question/<int:question_id>/edit", methods=["GET", "POST"])
+def edit_question(question_id):
+
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    test_id = request.args.get("test_id")
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Check whether students have already attempted this test
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM results
+        WHERE test_id = ?
+    """, (test_id,))
+
+    attempt_count = cursor.fetchone()[0]
+
+    if attempt_count > 0:
+        connection.close()
+        return (
+            "This question cannot be edited because "
+            "students have already attempted this test."
+        ), 400
+
+    if request.method == "POST":
+
+        question = request.form["question"]
+        option_a = request.form["option_a"]
+        option_b = request.form["option_b"]
+        option_c = request.form["option_c"]
+        option_d = request.form["option_d"]
+        correct_answer = request.form["correct_answer"]
+
+        cursor.execute("""
+            UPDATE questions
+            SET question = ?,
+                option_a = ?,
+                option_b = ?,
+                option_c = ?,
+                option_d = ?,
+                correct_answer = ?
+            WHERE id = ?
+        """, (
+            question,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            correct_answer,
+            question_id
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect(
+            f"/admin/test/{test_id}/questions"
+        )
+
+    cursor.execute("""
+        SELECT id,
+               question,
+               option_a,
+               option_b,
+               option_c,
+               option_d,
+               correct_answer
+        FROM questions
+        WHERE id = ?
+    """, (question_id,))
+
+    question_data = cursor.fetchone()
+
+    connection.close()
+
+    if not question_data:
+        return "Question not found.", 404
+
+    return render_template(
+        "edit_question.html",
+        question=question_data
+    )
+@app.route("/admin/question/<int:question_id>/delete", methods=["POST"])
+def delete_question(question_id):
+
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    test_id = request.args.get("test_id")
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Check whether students have already attempted this test
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM results
+        WHERE test_id = ?
+    """, (test_id,))
+
+    attempt_count = cursor.fetchone()[0]
+
+    if attempt_count > 0:
+        connection.close()
+        return (
+            "This question cannot be deleted because "
+            "students have already attempted this test."
+        ), 400
+
+   
+
+    # Check whether the question belongs to this test
+    cursor.execute("""
+        SELECT id
+        FROM test_questions
+        WHERE test_id = ?
+        AND question_id = ?
+    """, (test_id, question_id))
+
+    link = cursor.fetchone()
+
+    if not link:
+        connection.close()
+        return "Question does not belong to this test.", 404
+
+    # Remove the test-question relationship
+    cursor.execute("""
+        DELETE FROM test_questions
+        WHERE test_id = ?
+        AND question_id = ?
+    """, (test_id, question_id))
+
+    # Remove the question itself
+    cursor.execute("""
+        DELETE FROM questions
+        WHERE id = ?
+    """, (question_id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect(
+        f"/admin/test/{test_id}/questions"
+    )
+
+@app.route("/admin/test/<int:test_id>/edit", methods=["GET", "POST"])
+def edit_test(test_id):
+
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+
+        title = request.form["title"]
+        subject = request.form["subject"]
+        duration = request.form["duration"]
+        question_count = request.form["question_count"]
+
+        cursor.execute("""
+            UPDATE test_papers
+            SET title = ?,
+                subject = ?,
+                duration = ?,
+                question_count = ?
+            WHERE id = ?
+        """, (
+            title,
+            subject,
+            duration,
+            question_count,
+            test_id
+        ))
+
+        connection.commit()
+        connection.close()
+
+        return redirect("/admin")
+
+    cursor.execute("""
+        SELECT id, title, subject, duration, question_count, status
+        FROM test_papers
+        WHERE id = ?
+    """, (test_id,))
+
+    test = cursor.fetchone()
+
+    connection.close()
+
+    if not test:
+        return "Test paper not found.", 404
+
+    return render_template(
+        "edit_test.html",
+        test=test
+    )
+@app.route("/admin/test/<int:test_id>/delete", methods=["POST"])
+def delete_test(test_id):
+
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Check whether students have already attempted this test
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM results
+        WHERE test_id = ?
+    """, (test_id,))
+
+    result_count = cursor.fetchone()[0]
+
+    if result_count > 0:
+        connection.close()
+        return (
+            "This test cannot be deleted because students "
+            "have already submitted attempts for it."
+        ), 400
+
+    # Get questions linked to this test
+    cursor.execute("""
+        SELECT question_id
+        FROM test_questions
+        WHERE test_id = ?
+    """, (test_id,))
+
+    question_ids = cursor.fetchall()
+
+    # Remove test-question relationships
+    cursor.execute("""
+        DELETE FROM test_questions
+        WHERE test_id = ?
+    """, (test_id,))
+
+    # Remove the test paper
+    cursor.execute("""
+        DELETE FROM test_papers
+        WHERE id = ?
+    """, (test_id,))
+
+    # Remove questions belonging to this test
+    for question in question_ids:
+        cursor.execute("""
+            DELETE FROM questions
+            WHERE id = ?
+        """, (question[0],))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/admin")
+
+@app.route("/admin/create-test", methods=["POST"])
+def create_test():
+
+    # Only admin can create test papers
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    title = request.form["title"]
+    subject = request.form["subject"]
+    duration = request.form["duration"]
+    question_count = request.form["question_count"]
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO test_papers
+        (title, subject, duration, status, question_count)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
+        title,
+        subject,
+        duration,
+        "Draft",
+        question_count
+    ))
+
+    connection.commit()
+    connection.close()
+
+    return "Test paper created successfully!"
+@app.route("/admin/test/<int:test_id>/questions", methods=["GET", "POST"])
+def admin_test_questions(test_id):
+    # Only admin can access
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+        cursor.execute("""
+            SELECT question_count
+            FROM test_papers
+            WHERE id = ?
+        """, (test_id,))
+
+        required_questions = cursor.fetchone()[0]
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM test_questions
+            WHERE test_id = ?
+        """, (test_id,))
+
+        actual_questions = cursor.fetchone()[0]
+
+        if actual_questions >= required_questions:
+            connection.close()
+            return "Question limit reached. You cannot add more questions to this test."
+        question = request.form["question"]
+        option_a = request.form["option_a"]
+        option_b = request.form["option_b"]
+        option_c = request.form["option_c"]
+        option_d = request.form["option_d"]
+        correct_answer = request.form["correct_answer"]
+
+        cursor.execute("""
+            INSERT INTO questions
+            (question, option_a, option_b, option_c, option_d, correct_answer)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            question,
+            option_a,
+            option_b,
+            option_c,
+            option_d,
+            correct_answer
+        ))
+
+        question_id = cursor.lastrowid
+
+        cursor.execute("""
+            INSERT INTO test_questions
+            (test_id, question_id)
+            VALUES (?, ?)
+        """, (
+            test_id,
+            question_id
+        ))
+
+        connection.commit()
+
+    cursor.execute("""
+        SELECT title, subject, duration, question_count
+        FROM test_papers
+        WHERE id = ?
+    """, (test_id,))
+
+    test = cursor.fetchone()
+    test_question_count = test[3] if test else 0
+
+    cursor.execute("""
+        SELECT q.id, q.question, q.option_a, q.option_b,
+               q.option_c, q.option_d, q.correct_answer
+        FROM questions q
+        JOIN test_questions tq
+        ON q.id = tq.question_id
+        WHERE tq.test_id = ?
+        ORDER BY q.id
+    """, (test_id,))
+
+    questions = cursor.fetchall()
+
+    connection.close()
+
+    return render_template(
+        "admin_test_questions.html",
+        test=test,
+        test_id=test_id,
+        questions=questions,
+        test_question_count=test_question_count
+    )
+@app.route("/admin/test/<int:test_id>/publish", methods=["POST"])
+def publish_test(test_id):
+
+    # Only admin can publish tests
+    if "username" not in session or session["username"] != "admin":
+        return "Access denied. Admins only.", 403
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    # Get the required question count
+    cursor.execute("""
+        SELECT question_count
+        FROM test_papers
+        WHERE id = ?
+    """, (test_id,))
+
+    test = cursor.fetchone()
+
+    if not test:
+        connection.close()
+        return "Test paper not found."
+
+    required_questions = test[0]
+
+    # Count questions currently added
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM test_questions
+        WHERE test_id = ?
+    """, (test_id,))
+
+    actual_questions = cursor.fetchone()[0]
+
+    # Require exact number of questions
+    if actual_questions != required_questions:
+
+        connection.close()
+
+        return (
+            f"Cannot publish this test. "
+            f"Required: {required_questions} questions. "
+            f"Currently added: {actual_questions}."
+        )
+
+    # Publish the test
+    cursor.execute("""
+        UPDATE test_papers
+        SET status = 'Published'
+        WHERE id = ?
+    """, (test_id,))
+
+    connection.commit()
+    connection.close()
+
+    return redirect("/admin")
 # =========================
 # DASHBOARD
 # =========================
@@ -261,11 +728,76 @@ def exam():
     if "username" not in session:
         return redirect("/login")
 
-    session["exam_start"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
 
-    return render_template("exam.html")
+    cursor.execute("""
+        SELECT id, title, subject, duration, question_count
+        FROM test_papers
+        WHERE status = 'Published'
+        ORDER BY id DESC
+    """)
 
+    tests = cursor.fetchall()
 
+    connection.close()
+    return render_template(
+    "available_tests.html",
+    tests=tests
+)
+@app.route("/start-test/<int:test_id>")
+def start_test(test_id):
+
+    if "username" not in session:
+        return redirect("/login")
+
+    connection = sqlite3.connect("database.db")
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id, title, subject, duration, question_count
+        FROM test_papers
+        WHERE id = ?
+        AND status = 'Published'
+    """, (test_id,))
+
+    test = cursor.fetchone()
+
+    if not test:
+        connection.close()
+        return "Test not found or not published.", 404
+
+    cursor.execute("""
+        SELECT q.id,
+               q.question,
+               q.option_a,
+               q.option_b,
+               q.option_c,
+               q.option_d
+        FROM questions q
+        JOIN test_questions tq
+        ON q.id = tq.question_id
+        WHERE tq.test_id = ?
+        ORDER BY q.id
+    """, (test_id,))
+
+    questions = cursor.fetchall()
+
+    connection.close()
+
+    session["exam_start"] = datetime.utcnow().strftime(
+        "%Y-%m-%d %H:%M:%S"
+    )
+
+    session["test_id"] = test_id
+
+    return render_template(
+        "dynamic_exam.html",
+        test=test,
+        questions=questions
+    )
+ 
+    
 # =========================
 # RESULTS HISTORY
 # =========================
@@ -276,159 +808,23 @@ def results():
     if "username" not in session:
         return redirect("/login")
 
-
-    question_text = {
-        "q1": "What is the brain of a computer?",
-        "q2": "Which language is used to create the structure of a web page?",
-        "q3": "Which data structure follows FIFO?",
-        "q4": "Which of the following is an operating system?",
-        "q5": "Which protocol is used for web communication?",
-        "q6": "Which language is used to manage databases?",
-        "q7": "Which data structure follows LIFO?",
-        "q8": "Which of the following is a programming language?",
-        "q9": "What does RAM stand for?",
-        "q10": "Which device connects different networks?",
-        "q11": "Which sorting algorithm repeatedly compares adjacent elements?",
-        "q12": "What does CPU stand for?",
-        "q13": "Which language is used for styling web pages?",
-        "q14": "Which of the following is a database management system?",
-        "q15": "Which symbol is used for an ID selector in CSS?",
-        "q16": "Which HTML tag is used for the largest heading?",
-        "q17": "Which symbol represents multiplication in Python?",
-        "q18": "What number system uses only 0 and 1?",
-        "q19": "Which protocol is commonly used for sending email?",
-        "q20": "What is a field of AI that enables computers to learn from data?"
-    }
-
-    option_text = {
-        "q1": {
-            "a": "CPU",
-            "b": "RAM",
-            "c": "Keyboard",
-            "d": "Monitor"
-        },
-        "q2": {
-            "a": "CSS",
-            "b": "HTML",
-            "c": "Python",
-            "d": "SQL"
-        },
-        "q3": {
-            "a": "Stack",
-            "b": "Queue",
-            "c": "Tree",
-            "d": "Graph"
-        },
-        "q4": {
-            "a": "Linux",
-            "b": "Windows",
-            "c": "Python",
-            "d": "Oracle"
-        },
-        "q5": {
-            "a": "HTTP",
-            "b": "FTP",
-            "c": "SMTP",
-            "d": "SSH"
-        },
-        "q6": {
-            "a": "SQL",
-            "b": "HTML",
-            "c": "CSS",
-            "d": "Java"
-        },
-        "q7": {
-            "a": "Queue",
-            "b": "Stack",
-            "c": "Array",
-            "d": "Tree"
-        },
-        "q8": {
-            "a": "Python",
-            "b": "HTML",
-            "c": "CSS",
-            "d": "SQL"
-        },
-        "q9": {
-            "a": "Random Access Memory",
-            "b": "Read Access Memory",
-            "c": "Run Access Memory",
-            "d": "Rapid Access Memory"
-        },
-        "q10": {
-            "a": "Router",
-            "b": "Keyboard",
-            "c": "Monitor",
-            "d": "Printer"
-        },
-        "q11": {
-            "a": "Bubble Sort",
-            "b": "Binary Search",
-            "c": "Merge Sort",
-            "d": "Quick Sort"
-        },
-        "q12": {
-            "a": "Central Processing Unit",
-            "b": "Computer Personal Unit",
-            "c": "Central Program Utility",
-            "d": "Computer Processing Utility"
-        },
-        "q13": {
-            "a": "CSS",
-            "b": "HTML",
-            "c": "SQL",
-            "d": "Python"
-        },
-        "q14": {
-            "a": "MySQL",
-            "b": "HTML",
-            "c": "CSS",
-            "d": "JavaScript"
-        },
-        "q15": {
-            "a": "#",
-            "b": ".",
-            "c": "@",
-            "d": "$"
-        },
-        "q16": {
-            "a": "<h1>",
-            "b": "<p>",
-            "c": "<head>",
-            "d": "<title>"
-        },
-        "q17": {
-            "a": "*",
-            "b": "+",
-            "c": "-",
-            "d": "/"
-        },
-        "q18": {
-            "a": "Binary",
-            "b": "Decimal",
-            "c": "Octal",
-            "d": "Hexadecimal"
-        },
-        "q19": {
-            "a": "SMTP",
-            "b": "HTTP",
-            "c": "FTP",
-            "d": "SSH"
-        },
-        "q20": {
-            "a": "Machine Learning",
-            "b": "Web Development",
-            "c": "Database Management",
-            "d": "Networking"
-        }
-    }
-
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
-    cursor.execute(
-        "SELECT * FROM results ORDER BY id DESC"
-    )
+    cursor.execute("""
+    SELECT r.id,
+           r.username,
+           r.score,
+           r.total,
+           r.proctoring_status,
+           r.test_id,
+           t.title
+    FROM results r
+    LEFT JOIN test_papers t
+    ON r.test_id = t.id
+    WHERE r.username = ?
+    ORDER BY r.id DESC
+""", (session["username"],))
 
     results = cursor.fetchall()
 
@@ -436,14 +832,11 @@ def results():
 
     for result in results:
 
-        cursor.execute(
-            """
+        cursor.execute("""
             SELECT question, selected_answer, correct_answer
             FROM answers
             WHERE result_id = ?
-            """,
-            (result[0],)
-        )
+        """, (result[0],))
 
         all_answers[result[0]] = cursor.fetchall()
 
@@ -452,11 +845,8 @@ def results():
     return render_template(
         "results.html",
         results=results,
-        all_answers=all_answers,
-        question_text=question_text,
-        option_text=option_text
+        all_answers=all_answers
     )
-
 
 # =========================
 # SUBMIT EXAM
@@ -468,120 +858,157 @@ def result():
     if "username" not in session:
         return redirect("/login")
 
-    answers = {
-        "q1": "a",
-        "q2": "b",
-        "q3": "b",
-        "q4": "a",
-        "q5": "a",
-        "q6": "a",
-        "q7": "b",
-        "q8": "a",
-        "q9": "a",
-        "q10": "a",
-        "q11": "a",
-        "q12": "a",
-        "q13": "a",
-        "q14": "a",
-        "q15": "a",
-        "q16": "a",
-        "q17": "a",
-        "q18": "a",
-        "q19": "a",
-        "q20": "a"
-    }
+    test_id = session.get("test_id")
 
-    score = 0
-    attempted=0
-
-    for question, correct_answer in answers.items():
-
-        selected_answer = request.form.get(question)
-        if selected_answer:
-            attempted += 1
-
-        if selected_answer == correct_answer:
-            score += 1
-
-    total = len(answers)
+    if not test_id:
+        return "No test selected.", 400
 
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
+
+    # Get questions for this test
+    cursor.execute("""
+        SELECT q.id,
+               q.question,
+               q.correct_answer
+        FROM questions q
+        JOIN test_questions tq
+        ON q.id = tq.question_id
+        WHERE tq.test_id = ?
+        ORDER BY q.id
+    """, (test_id,))
+
+    questions = cursor.fetchall()
+
+    score = 0
+    attempted = 0
+
+    for question in questions:
+
+        question_id = question[0]
+        correct_answer = question[2]
+
+        selected_answer = request.form.get(
+            f"q{question_id}"
+        )
+
+        if selected_answer:
+            attempted += 1
+
+        if selected_answer and correct_answer:
+            if selected_answer.strip().lower() == correct_answer.strip().lower():
+                score += 1
+
+    total = len(questions)
+
+    # Count tab switches
     cursor.execute("""
         SELECT COUNT(*)
         FROM proctoring_events
         WHERE username = ?
         AND event = 'tab_switch'
         AND timestamp >= ?
-    """, (session["username"], session["exam_start"]))
+    """, (
+        session["username"],
+        session["exam_start"]
+    ))
 
     tab_switches = cursor.fetchone()[0]
 
+    # Count multiple-face events
     cursor.execute("""
         SELECT COUNT(*)
         FROM proctoring_events
         WHERE username = ?
         AND event = 'multiple_faces'
         AND timestamp >= ?
-    """, (session["username"], session["exam_start"]))
+    """, (
+        session["username"],
+        session["exam_start"]
+    ))
 
     multiple_faces = cursor.fetchone()[0]
 
+    # Determine proctoring status
     if tab_switches >= 3 or multiple_faces > 0:
         proctoring_status = "Suspicious"
     else:
         proctoring_status = "Normal"
 
-
-  
-
-   
-    cursor.execute(
-    """
-    INSERT INTO results
-    (username, score, total, proctoring_status)
-    VALUES (?, ?, ?, ?)
-    """,
-    (
+    # Save result
+    cursor.execute("""
+        INSERT INTO results
+        (username, score, total, proctoring_status, test_id)
+        VALUES (?, ?, ?, ?, ?)
+    """, (
         session["username"],
         score,
         total,
-        proctoring_status
-    )
-)
+        proctoring_status,
+        test_id
+    ))
+
     result_id = cursor.lastrowid
 
-    for question, correct_answer in answers.items():
+    # Save individual answers
+    for question in questions:
 
-   
-        selected_answer = request.form.get(question)
+        question_id = question[0]
+        question_text = question[1]
+        correct_answer = question[2]
 
-        cursor.execute(
-            """
+        selected_answer = request.form.get(
+            f"q{question_id}"
+        )
+
+        cursor.execute("""
             INSERT INTO answers
             (result_id, question, selected_answer, correct_answer)
             VALUES (?, ?, ?, ?)
-            """,
-            (
-                result_id,
-                question,
-                selected_answer,
-                correct_answer
-            )
-        )
+        """, (
+            result_id,
+            question_text,
+            selected_answer,
+            correct_answer
+        ))
 
     connection.commit()
     connection.close()
-    return render_template(
-    "result.html",
-    score=score,
-    total=total,
-    attempted=attempted,
-    proctoring_status=proctoring_status,
-    tab_switches=tab_switches
-)
 
-    
+    # Get test information
+    test_connection = sqlite3.connect("database.db")
+    test_cursor = test_connection.cursor()
+
+    test_cursor.execute("""
+        SELECT title, subject, duration
+        FROM test_papers
+        WHERE id = ?
+    """, (test_id,))
+
+    test_info = test_cursor.fetchone()
+
+    test_connection.close()
+
+    if not test_info:
+        return "Test information not found.", 404
+
+    test_name = test_info[0]
+    test_subject = test_info[1]
+    test_duration = test_info[2]
+    session.pop("test_id", None)
+    session.pop("exam_start", None)
+
+    return render_template(
+        "result.html",
+        score=score,
+        total=total,
+        attempted=attempted,
+        proctoring_status=proctoring_status,
+        tab_switches=tab_switches,
+        test_name=test_name,
+        test_subject=test_subject,
+        test_duration=test_duration
+    )
 
     
 # =========================

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Question - ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Exam<span>Guard</span>
+    </div>
+
+    <nav>
+        <a href="/admin">Admin Dashboard</a>
+        <a href="/logout">Logout</a>
+    </nav>
+
+</header>
+
+<main class="login-container">
+
+    <div class="login-box">
+
+        <h1>✏️ Edit Question</h1>
+
+        <form method="POST">
+
+            <label>Question</label>
+
+            <textarea
+                name="question"
+                rows="4"
+                required
+            >{{ question[1] }}</textarea>
+
+
+            <label>Option A</label>
+
+            <input
+                type="text"
+                name="option_a"
+                value="{{ question[2] }}"
+                required
+            >
+
+
+            <label>Option B</label>
+
+            <input
+                type="text"
+                name="option_b"
+                value="{{ question[3] }}"
+                required
+            >
+
+
+            <label>Option C</label>
+
+            <input
+                type="text"
+                name="option_c"
+                value="{{ question[4] }}"
+                required
+            >
+
+
+            <label>Option D</label>
+
+            <input
+                type="text"
+                name="option_d"
+                value="{{ question[5] }}"
+                required
+            >
+
+
+            <label>Correct Answer</label>
+
+            <select name="correct_answer" required>
+
+                <option value="A"
+                    {% if question[6]|upper == "A" %}selected{% endif %}>
+                    A
+                </option>
+
+                <option value="B"
+                    {% if question[6]|upper == "B" %}selected{% endif %}>
+                    B
+                </option>
+
+                <option value="C"
+                    {% if question[6]|upper == "C" %}selected{% endif %}>
+                    C
+                </option>
+
+                <option value="D"
+                    {% if question[6]|upper == "D" %}selected{% endif %}>
+                    D
+                </option>
+
+            </select>
+
+
+            <button type="submit" class="btn">
+                💾 Save Question
+            </button>
+
+        </form>
+
+        <br>
+
+        <a href="/admin" class="btn">
+            ← Back to Admin Dashboard
+        </a>
+
+    </div>
+
+</main>
+
+</body>
+
+</html>

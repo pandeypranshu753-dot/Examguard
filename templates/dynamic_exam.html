@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{{ test[1] }} - ExamGuard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <div class="logo">
+        Exam<span>Guard</span>
+    </div>
+
+    <nav>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/logout">Logout</a>
+    </nav>
+</header>
+
+
+<main class="dashboard">
+
+    <h1>{{ test[1] }}</h1>
+
+    <p>
+        <strong>Subject:</strong> {{ test[2] }}
+    </p>
+
+    <p>
+        <strong>Questions:</strong> {{ questions|length }}
+    </p>
+
+    <p>
+        <strong>Duration:</strong> {{ test[3] }} minutes
+    </p>
+
+
+    <hr>
+
+
+    <h2>Questions</h2>
+
+    <form method="POST" action="/result">
+
+        {% for question in questions %}
+
+            <div class="dashboard-card">
+
+                <h3>
+                    Question {{ loop.index }}
+                </h3>
+
+                <p>
+                    <strong>{{ question[1] }}</strong>
+                </p>
+
+
+                <label>
+                    <input
+                        type="radio"
+                        name="q{{ question[0] }}"
+                        value="a"
+                    >
+                    {{ question[2] }}
+                </label>
+
+                <br><br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="q{{ question[0] }}"
+                        value="b"
+                    >
+                    {{ question[3] }}
+                </label>
+
+                <br><br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="q{{ question[0] }}"
+                        value="c"
+                    >
+                    {{ question[4] }}
+                </label>
+
+                <br><br>
+
+                <label>
+                    <input
+                        type="radio"
+                        name="q{{ question[0] }}"
+                        value="d"
+                    >
+                    {{ question[5] }}
+                </label>
+
+            </div>
+
+        {% endfor %}
+
+
+        <button type="submit" class="btn">
+            Submit Test
+        </button>
+
+    </form>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
+
+<script>
+
+const video = document.createElement("video");
+
+video.autoplay = true;
+video.muted = true;
+
+video.style.width = "320px";
+video.style.height = "240px";
+video.style.display = "block";
+video.style.margin = "20px auto";
+
+document.querySelector("main").prepend(video);
+
+let tabWarning = false;
+const faceStatus = document.createElement("p");
+
+faceStatus.id = "face-status";
+faceStatus.style.textAlign = "center";
+faceStatus.innerText = "Starting camera...";
+
+document.querySelector("main").prepend(faceStatus);
+
+
+const faceDetection = new FaceDetection({
+    locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
+    }
+});
+
+
+faceDetection.setOptions({
+    model: "short",
+    minDetectionConfidence: 0.5
+});
+
+
+faceDetection.onResults((results) => {
+        if (tabWarning) {
+        return;
+    }
+
+    
+    if (results.detections.length === 0) {
+
+    faceStatus.innerText =
+        "⚠️ No face detected! Please stay visible to the camera.";
+
+    faceStatus.style.color = "red";
+
+    sendProctoringEvent("no_face");
+
+}
+    else if (results.detections.length > 1) {
+
+    faceStatus.innerText =
+        "⚠️ Multiple faces detected! Only one candidate should be visible.";
+
+    faceStatus.style.color = "red";
+
+    sendProctoringEvent("multiple_faces");
+
+}
+    else {
+
+        faceStatus.innerText =
+            "Face detected. Proctoring active.";
+
+    }
+
+});
+
+
+async function startCamera() {
+
+    try {
+
+        const stream =
+            await navigator.mediaDevices.getUserMedia({
+                video: true
+            });
+
+        video.srcObject = stream;
+
+        video.addEventListener("loadeddata", () => {
+
+            detectFace();
+
+        });
+
+    }
+    catch (error) {
+
+        faceStatus.innerText =
+            "⚠️ Camera access denied.";
+
+    }
+
+}
+
+
+async function detectFace() {
+
+    await faceDetection.send({
+        image: video
+    });
+
+    requestAnimationFrame(detectFace);
+
+}
+
+
+function sendProctoringEvent(eventType) {
+
+    fetch("/proctoring-event", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            event: eventType
+        })
+
+    });
+
+}
+
+
+document.addEventListener("visibilitychange", function() {
+
+    if (document.hidden) {
+
+        tabWarning = true;
+
+        sendProctoringEvent("tab_switch");
+
+    } else {
+
+        tabWarning = true;
+
+        faceStatus.innerText =
+            "⚠️ Tab switch detected! Please remain on the exam.";
+
+        faceStatus.style.color = "red";
+
+        setTimeout(() => {
+
+            tabWarning = false;
+
+        }, 3000);
+
+    }
+
+});
+
+
+let time = Number("{{ test[3] }}") * 60;
+
+const timer = document.createElement("h2");
+
+timer.id = "timer";
+
+timer.style.textAlign = "center";
+
+document.querySelector("main").prepend(timer);
+
+
+const form = document.querySelector("form");
+
+let submitted = false;
+
+
+function updateTimer() {
+
+    const minutes =
+        Math.floor(time / 60);
+
+    const seconds =
+        time % 60;
+
+    timer.innerText =
+        "⏱️ Time Remaining: " +
+        minutes +
+        ":" +
+        seconds.toString().padStart(2, "0");
+
+
+    if (time <= 0) {
+
+        if (!submitted) {
+
+            submitted = true;
+
+            form.submit();
+
+        }
+
+        return;
+
+    }
+
+    time--;
+
+}
+
+
+setInterval(updateTimer, 1000);
+
+updateTimer();
+
+startCamera();
+
+</script>
+
+
+</body>
+</html>

@@ -47,6 +47,15 @@ def create_database():
         """)
     except sqlite3.OperationalError:
         pass
+
+    try:
+        cursor.execute("""
+            ALTER TABLE results
+            ADD COLUMN test_id INTEGER
+        """)
+    except sqlite3.OperationalError:
+        pass
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS answers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -56,17 +65,59 @@ def create_database():
             correct_answer TEXT NOT NULL
         )
     """)
-    hashed_password = generate_password_hash("1234")
+    hashed_password = generate_password_hash("Admin@123")
 
     cursor.execute("""
-    INSERT OR IGNORE INTO students (username, password)
-    VALUES (?, ?)
-""", ("admin", hashed_password))
+        SELECT id FROM students
+        WHERE username = ?
+    """, ("admin",))
+
+    admin_exists = cursor.fetchone()
+
+    if not admin_exists:
+        cursor.execute("""
+            INSERT INTO students
+            (username, password)
+            VALUES (?, ?)
+        """, ("admin", hashed_password))
     cursor.execute("""
-    UPDATE students
-    SET password = ?
-    WHERE username = ?
-""", (hashed_password, "admin"))
+        CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            question TEXT NOT NULL,
+            option_a TEXT NOT NULL,
+            option_b TEXT NOT NULL,
+            option_c TEXT NOT NULL,
+            option_d TEXT NOT NULL,
+            correct_answer TEXT NOT NULL
+        )
+    """)
+        
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS test_papers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            subject TEXT NOT NULL,
+            duration INTEGER NOT NULL,
+            status TEXT DEFAULT 'Draft'
+        )
+    """)
+    try:
+        cursor.execute("""
+            ALTER TABLE test_papers
+            ADD COLUMN question_count INTEGER DEFAULT 0
+        """)
+    except sqlite3.OperationalError:
+        pass
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS test_questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            test_id INTEGER NOT NULL,
+            question_id INTEGER NOT NULL,
+            FOREIGN KEY (test_id) REFERENCES test_papers(id),
+            FOREIGN KEY (question_id) REFERENCES questions(id)
+        )
+    """)
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS proctoring_events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
