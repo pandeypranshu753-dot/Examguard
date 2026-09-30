@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from database import create_database
 import sqlite3
 from datetime import datetime
@@ -57,11 +57,9 @@ def forgot_password():
 
     if request.method == "POST":
         username = request.form["username"]
-        security_answer = request.form["security_answer"]
         password = request.form["password"]
         confirm_password = request.form["confirm_password"]
-        security_question = request.form["security_question"]
-        security_answer = request.form["security_answer"]
+        security_answer = request.form["security_answer"].strip().lower()
         if len(password) < 8:
             return "Password must be at least 8 characters long."
 
@@ -102,7 +100,7 @@ def forgot_password():
 
         
         # Hash the new password
-        from werkzeug.security import generate_password_hash
+        
 
         hashed_password = generate_password_hash(password)
 
@@ -212,8 +210,7 @@ def register():
             return "Username already exists. Please choose another username."
 
         # Hash the password before storing it
-        from werkzeug.security import generate_password_hash
-
+       
         hashed_password = generate_password_hash(password)
         cursor.execute(
     """
