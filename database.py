@@ -51,6 +51,14 @@ def create_database():
     try:
         cursor.execute("""
             ALTER TABLE results
+            ADD COLUMN tab_switches INTEGER DEFAULT 0
+        """)
+    except sqlite3.OperationalError:
+        pass
+
+    try:
+        cursor.execute("""
+            ALTER TABLE results
             ADD COLUMN test_id INTEGER
         """)
     except sqlite3.OperationalError:

@@ -45,8 +45,13 @@
                     <div class="dashboard-card">
 
                        <h2>
-    {{ result[6] if result[6] else "Exam Attempt " ~ loop.index }}
-</h2>
+                        {{ result[7] if result[7] else "Exam Attempt " ~ loop.index }}
+                        <p>
+    <strong>Tab Switches:</strong>
+    {{ result[5] }}
+</p>
+     
+                       </h2>
 
                         <p>
     <strong>Score:</strong>
@@ -97,7 +102,7 @@
                             <strong>Score:</strong>
                             {{ result[2] }} / {{ result[3] }}
                         </p>
-                        <p>
+       <p>
     <strong>Proctoring Status:</strong>
 
     {% if result[4] == "Suspicious" %}
@@ -105,6 +110,11 @@
     {% else %}
         ✅ Normal
     {% endif %}
+</p>
+
+<p>
+    <strong>Tab Switches:</strong>
+    {{ result[4] }}
 </p>
 
                     </div>

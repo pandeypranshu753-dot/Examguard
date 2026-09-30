@@ -813,12 +813,13 @@ def results():
 
     cursor.execute("""
     SELECT r.id,
-           r.username,
-           r.score,
-           r.total,
-           r.proctoring_status,
-           r.test_id,
-           t.title
+       r.username,
+       r.score,
+       r.total,
+       r.proctoring_status,
+       r.tab_switches,
+       r.test_id,
+       t.title
     FROM results r
     LEFT JOIN test_papers t
     ON r.test_id = t.id
@@ -938,13 +939,14 @@ def result():
     # Save result
     cursor.execute("""
         INSERT INTO results
-        (username, score, total, proctoring_status, test_id)
-        VALUES (?, ?, ?, ?, ?)
+        (username, score, total, proctoring_status, tab_switches, test_id)
+        VALUES (?, ?, ?, ?, ?, ?)
     """, (
         session["username"],
         score,
         total,
         proctoring_status,
+        tab_switches,
         test_id
     ))
 
