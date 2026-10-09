@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 from database import create_database
+from ultralytics import YOLO
 import sqlite3
 from datetime import datetime
 import re
@@ -38,6 +39,7 @@ class username:
 
 app = Flask(__name__)
 app.secret_key = "YOUR_NEW_KEY"
+phone_model = YOLO("yolov8n.pt")
 
 create_database()
 
@@ -1025,6 +1027,15 @@ def proctoring_event():
     event = data.get("event")
     warning_count = data.get("warning_count", 0)
 
+    allowed_events = {
+        "tab_switch",
+        "no_face",
+        "multiple_faces",
+        "mobile_phone_detected"
+    }
+
+    if event not in allowed_events:
+        return {"status": "invalid event"}, 400
     connection = sqlite3.connect("database.db")
     cursor = connection.cursor()
 
@@ -1072,6 +1083,41 @@ def proctoring_logs():
         "proctoring_logs.html",
         events=events
     )
+@app.route("/detect-phone", methods=["POST"])
+def detect_phone():
+    print("PHONE DETECTION REQUEST RECEIVED")
+    if "username" not in session:
+        return {"error": "Unauthorized"}, 401
+
+    image_file = request.files.get("image")
+    if not image_file:
+        return {"error": "No image received"}, 400
+
+    import cv2
+    import numpy as np
+
+    image_bytes = image_file.read()
+    image_array = np.frombuffer(image_bytes, dtype=np.uint8)
+    frame = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+    if frame is None:
+        return {"error": "Invalid image"}, 400
+
+    results = phone_model(frame, verbose=False)
+    print("DETECTED CLASSES:", [
+    phone_model.names[int(box.cls[0])]
+    for result in results
+    for box in result.boxes
+])
+    phone_detected = any(
+        phone_model.names[int(box.cls[0])] == "cell phone"
+        and float(box.conf[0]) >= 0.40
+        for result in results
+        for box in result.boxes
+    )
+
+    return {"phone_detected": phone_detected}
+
 if __name__ == "__main__":
     app.run(debug=True)
 

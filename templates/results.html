@@ -7,8 +7,7 @@
 
     <title>Results | ExamGuard</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -38,106 +37,106 @@
 
         {% if results %}
 
-            <div class="dashboard-cards">
+        <div class="dashboard-cards">
 
-                {% for result in results %}
-
-                    <div class="dashboard-card">
-
-                       <h2>
-                        {{ result[7] if result[7] else "Exam Attempt " ~ loop.index }}
-                        <p>
-    <strong>Tab Switches:</strong>
-    {{ result[5] }}
-</p>
-     
-                       </h2>
-
-                        <p>
-    <strong>Score:</strong>
-    {{ result[2] }} / {{ result[3] }}
-</p>
-
-<h3>Attempted Questions</h3>
-
-{% if all_answers[result[0]] %}
-
-    {% for answer in all_answers[result[0]] %}
-
-        <div class="answer-item">
-
-          <p>
-    <strong>Question:</strong>
-    {{ answer[0] }}
-</p>
-
-<p>
-    <strong>Your Answer:</strong>
-
-    {% if answer[1] %}
-        {{ answer[1] | upper }}
-    {% else %}
-        Not Answered
-    {% endif %}
-</p>
-
-<p>
-    <strong>Correct Answer:</strong>
-    {{ answer[2] | upper }}
-</p>
-
-          {% if answer[1]|lower == answer[2]|lower %}
-                <p><strong>Status:</strong> Correct</p>
-            {% else %}
-                <p><strong>Status:</strong> Incorrect</p>
-            {% endif %}
-
-        </div>
-
-    {% endfor %}
-
-{% endif %}
-
-                        <p>
-                            <strong>Score:</strong>
-                            {{ result[2] }} / {{ result[3] }}
-                        </p>
-       <p>
-    <strong>Proctoring Status:</strong>
-
-    {% if result[4] == "Suspicious" %}
-        ⚠️ Suspicious
-    {% else %}
-        ✅ Normal
-    {% endif %}
-</p>
-
-<p>
-    <strong>Tab Switches:</strong>
-    {{ result[4] }}
-</p>
-
-                    </div>
-
-                {% endfor %}
-
-            </div>
-
-        {% else %}
+            {% for result in results %}
 
             <div class="dashboard-card">
 
-                <h2>No Results Yet</h2>
+                <h2>
+                    {{ result[7] if result[7] else "Exam Attempt " ~ loop.index }}
+                    <p>
+                        <strong>Tab Switches:</strong>
+                        {{ result[5] }}
+                    </p>
+
+                </h2>
 
                 <p>
-                    You have not completed an examination yet.
+                    <strong>Score:</strong>
+                    {{ result[2] }} / {{ result[3] }}
                 </p>
 
-                <a href="/exam" class="btn">
-                    Start Exam
-                </a>
+                <h3>Attempted Questions</h3>
+
+                {% if all_answers[result[0]] %}
+
+                {% for answer in all_answers[result[0]] %}
+
+                <div class="answer-item">
+
+                    <p>
+                        <strong>Question:</strong>
+                        {{ answer[0] }}
+                    </p>
+
+                    <p>
+                        <strong>Your Answer:</strong>
+
+                        {% if answer[1] %}
+                        {{ answer[1] | upper }}
+                        {% else %}
+                        Not Answered
+                        {% endif %}
+                    </p>
+
+                    <p>
+                        <strong>Correct Answer:</strong>
+                        {{ answer[2] | upper }}
+                    </p>
+
+                    {% if answer[1]|lower == answer[2]|lower %}
+                    <p><strong>Status:</strong> Correct</p>
+                    {% else %}
+                    <p><strong>Status:</strong> Incorrect</p>
+                    {% endif %}
+
+                </div>
+
+                {% endfor %}
+
+                {% endif %}
+
+                <p>
+                    <strong>Score:</strong>
+                    {{ result[2] }} / {{ result[3] }}
+                </p>
+                <p>
+                    <strong>Proctoring Status:</strong>
+
+                    {% if result[4] == "Suspicious" %}
+                    ⚠️ Suspicious
+                    {% else %}
+                    ✅ Normal
+                    {% endif %}
+                </p>
+
+                <p>
+                    <strong>Tab Switches:</strong>
+                    {{ result[4] }}
+                </p>
 
             </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="dashboard-card">
+
+            <h2>No Results Yet</h2>
+
+            <p>
+                You have not completed an examination yet.
+            </p>
+
+            <a href="/exam" class="btn">
+                Start Exam
+            </a>
+
+        </div>
 
         {% endif %}
 

@@ -7,8 +7,7 @@
 
     <title>Result | ExamGuard</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -19,21 +18,21 @@
 
             <h1>{{ test_name }}</h1>
 
-<h2>Exam Completed 🎉</h2>
+            <h2>Exam Completed 🎉</h2>
 
             <p>Your result has been calculated.</p>
             <p>
-    <strong>Subject:</strong>
-    {{ test_subject }}
-</p>
+                <strong>Subject:</strong>
+                {{ test_subject }}
+            </p>
 
-<p>
-    <strong>Duration:</strong>
-    {{ test_duration }} minutes
-</p>
+            <p>
+                <strong>Duration:</strong>
+                {{ test_duration }} minutes
+            </p>
 
-           
-                 <div class="score">
+
+            <div class="score">
                 {{ score }} / {{ total }}
             </div>
             <p><strong>Attempted:</strong> {{ attempted }} / {{ total }}</p>
@@ -43,15 +42,15 @@
                 You answered {{ score }} question(s) correctly.
             </p>
             <div class="proctoring-result">
-    <h3>Proctoring Status</h3>
-    <p>⚠️ Tab switches detected: {{ tab_switches }}</p>
+                <h3>Proctoring Status</h3>
+                <p>⚠️ Tab switches detected: {{ tab_switches }}</p>
 
-    {% if proctoring_status == "Suspicious" %}
-        <p>⚠️ Suspicious activity detected</p>
-    {% else %}
-        <p>✅ Normal</p>
-    {% endif %}
-</div>
+                {% if proctoring_status == "Suspicious" %}
+                <p>⚠️ Suspicious activity detected</p>
+                {% else %}
+                <p>✅ Normal</p>
+                {% endif %}
+            </div>
 
             <a href="/dashboard" class="btn">
                 Back to Dashboard

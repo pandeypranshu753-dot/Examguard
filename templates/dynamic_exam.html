@@ -1,6 +1,6 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,329 +12,389 @@
 </head>
 
 <body>
+    <header>
+        <div class="logo">Exam<span>Guard</span></div>
+        <nav>
+            <a href="/dashboard">Dashboard</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
 
-<header>
-    <div class="logo">
-        Exam<span>Guard</span>
-    </div>
+    <main class="dashboard">
+        <h1>{{ test[1] }}</h1>
 
-    <nav>
-        <a href="/dashboard">Dashboard</a>
-        <a href="/logout">Logout</a>
-    </nav>
-</header>
+        <p><strong>Subject:</strong> {{ test[2] }}</p>
+        <p><strong>Questions:</strong> {{ questions|length }}</p>
+        <p><strong>Duration:</strong> {{ test[3] }} minutes</p>
 
+        <hr>
 
-<main class="dashboard">
+        <h2>Questions</h2>
 
-    <h1>{{ test[1] }}</h1>
+        <form method="POST" action="/result">
+            {% for question in questions %}
+                <div class="dashboard-card">
+                    <h3>Question {{ loop.index }}</h3>
 
-    <p>
-        <strong>Subject:</strong> {{ test[2] }}
-    </p>
+                    <p><strong>{{ question[1] }}</strong></p>
 
-    <p>
-        <strong>Questions:</strong> {{ questions|length }}
-    </p>
+                    <label>
+                        <input type="radio"
+                               name="q{{ question[0] }}"
+                               value="a">
+                        {{ question[2] }}
+                    </label>
+                    <br><br>
 
-    <p>
-        <strong>Duration:</strong> {{ test[3] }} minutes
-    </p>
+                    <label>
+                        <input type="radio"
+                               name="q{{ question[0] }}"
+                               value="b">
+                        {{ question[3] }}
+                    </label>
+                    <br><br>
 
+                    <label>
+                        <input type="radio"
+                               name="q{{ question[0] }}"
+                               value="c">
+                        {{ question[4] }}
+                    </label>
+                    <br><br>
 
-    <hr>
+                    <label>
+                        <input type="radio"
+                               name="q{{ question[0] }}"
+                               value="d">
+                        {{ question[5] }}
+                    </label>
+                </div>
+            {% endfor %}
 
+            <button type="submit" class="btn">Submit Test</button>
+        </form>
+    </main>
 
-    <h2>Questions</h2>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
 
-    <form method="POST" action="/result">
+    <script>
+        // -----------------------------
+        // Proctoring interface
+        // -----------------------------
 
-        {% for question in questions %}
+        const main = document.querySelector("main");
 
-            <div class="dashboard-card">
+        const video = document.createElement("video");
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
 
-                <h3>
-                    Question {{ loop.index }}
-                </h3>
+        video.style.width = "320px";
+        video.style.height = "240px";
+        video.style.display = "block";
+        video.style.margin = "20px auto";
 
-                <p>
-                    <strong>{{ question[1] }}</strong>
-                </p>
+        const phoneStatus = document.createElement("p");
+        phoneStatus.id = "phone-status";
+        phoneStatus.style.textAlign = "center";
+        phoneStatus.style.color = "green";
+        phoneStatus.textContent = "Phone detection starting...";
 
+        const faceStatus = document.createElement("p");
+        faceStatus.id = "face-status";
+        faceStatus.style.textAlign = "center";
+        faceStatus.textContent = "Starting camera...";
 
-                <label>
-                    <input
-                        type="radio"
-                        name="q{{ question[0] }}"
-                        value="a"
-                    >
-                    {{ question[2] }}
-                </label>
+        const cameraPanel = document.createElement("div");
+        cameraPanel.id = "camera-panel";
+        cameraPanel.style.cssText = `
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            width: 340px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #2563eb;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+            z-index: 9999;
+            text-align: center;
+            max-height: 75vh;
+            overflow-y: auto;
+        `;
 
-                <br><br>
+        cameraPanel.innerHTML = "<h3>Exam Proctoring</h3>";
+        cameraPanel.appendChild(video);
+        cameraPanel.appendChild(faceStatus);
+        cameraPanel.appendChild(phoneStatus);
+        document.body.appendChild(cameraPanel);
 
-                <label>
-                    <input
-                        type="radio"
-                        name="q{{ question[0] }}"
-                        value="b"
-                    >
-                    {{ question[3] }}
-                </label>
+        video.style.width = "100%";
+        video.style.height = "auto";
+        video.style.margin = "8px auto";
 
-                <br><br>
+        let tabWarning = false;
+        let phoneDetectedPreviously = false;
 
-                <label>
-                    <input
-                        type="radio"
-                        name="q{{ question[0] }}"
-                        value="c"
-                    >
-                    {{ question[4] }}
-                </label>
+        // -----------------------------
+        // Send proctoring events to Flask
+        // -----------------------------
 
-                <br><br>
-
-                <label>
-                    <input
-                        type="radio"
-                        name="q{{ question[0] }}"
-                        value="d"
-                    >
-                    {{ question[5] }}
-                </label>
-
-            </div>
-
-        {% endfor %}
-
-
-        <button type="submit" class="btn">
-            Submit Test
-        </button>
-
-    </form>
-
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
-
-<script>
-
-const video = document.createElement("video");
-
-video.autoplay = true;
-video.muted = true;
-
-video.style.width = "320px";
-video.style.height = "240px";
-video.style.display = "block";
-video.style.margin = "20px auto";
-
-document.querySelector("main").prepend(video);
-
-let tabWarning = false;
-const faceStatus = document.createElement("p");
-
-faceStatus.id = "face-status";
-faceStatus.style.textAlign = "center";
-faceStatus.innerText = "Starting camera...";
-
-document.querySelector("main").prepend(faceStatus);
-
-
-const faceDetection = new FaceDetection({
-    locateFile: (file) => {
-        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
-    }
-});
-
-
-faceDetection.setOptions({
-    model: "short",
-    minDetectionConfidence: 0.5
-});
-
-
-faceDetection.onResults((results) => {
-        if (tabWarning) {
-        return;
-    }
-
-    
-    if (results.detections.length === 0) {
-
-    faceStatus.innerText =
-        "⚠️ No face detected! Please stay visible to the camera.";
-
-    faceStatus.style.color = "red";
-
-    sendProctoringEvent("no_face");
-
-}
-    else if (results.detections.length > 1) {
-
-    faceStatus.innerText =
-        "⚠️ Multiple faces detected! Only one candidate should be visible.";
-
-    faceStatus.style.color = "red";
-
-    sendProctoringEvent("multiple_faces");
-
-}
-    else {
-
-        faceStatus.innerText =
-            "Face detected. Proctoring active.";
-
-    }
-
-});
-
-
-async function startCamera() {
-
-    try {
-
-        const stream =
-            await navigator.mediaDevices.getUserMedia({
-                video: true
+        function sendProctoringEvent(eventType) {
+            fetch("/proctoring-event", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    event: eventType
+                })
+            }).catch(error => {
+                console.error("Proctoring event error:", error);
             });
+        }
 
-        video.srcObject = stream;
+        // -----------------------------
+        // Face detection setup
+        // -----------------------------
 
-        video.addEventListener("loadeddata", () => {
-
-            detectFace();
-
+        const faceDetection = new FaceDetection({
+            locateFile: file =>
+                `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
         });
 
-    }
-    catch (error) {
+        faceDetection.setOptions({
+            model: "short",
+            minDetectionConfidence: 0.5
+        });
 
-        faceStatus.innerText =
-            "⚠️ Camera access denied.";
+        faceDetection.onResults(results => {
+            if (tabWarning) return;
 
-    }
+            const detections = results.detections || [];
 
-}
+            if (detections.length === 0) {
+                faceStatus.textContent =
+                    "⚠️ No face detected! Please stay visible to the camera.";
+                faceStatus.style.color = "red";
+            } else if (detections.length > 1) {
+                faceStatus.textContent =
+                    "⚠️ Multiple faces detected!";
+                faceStatus.style.color = "red";
+            } else {
+                faceStatus.textContent =
+                    "✅ Face detected. Proctoring active.";
+                faceStatus.style.color = "green";
+            }
+        });
 
+        let faceDetectionRunning = false;
 
-async function detectFace() {
+        async function detectFace() {
+            if (
+                faceDetectionRunning ||
+                video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA
+            ) {
+                return;
+            }
 
-    await faceDetection.send({
-        image: video
-    });
+            faceDetectionRunning = true;
 
-    requestAnimationFrame(detectFace);
+            try {
+                await faceDetection.send({ image: video });
+            } catch (error) {
+                console.error("Face detection error:", error);
+            } finally {
+                faceDetectionRunning = false;
+            }
 
-}
+            if (video.srcObject) {
+                requestAnimationFrame(detectFace);
+            }
+        }
 
+        // -----------------------------
+        // Mobile phone detection
+        // -----------------------------
 
-function sendProctoringEvent(eventType) {
+        let phoneCheckRunning = false;
 
-    fetch("/proctoring-event", {
+        async function detectPhone() {
+            if (
+                phoneCheckRunning ||
+                video.videoWidth === 0 ||
+                video.videoHeight === 0
+            ) {
+                return;
+            }
 
-        method: "POST",
+            phoneCheckRunning = true;
 
-        headers: {
-            "Content-Type": "application/json"
-        },
+            try {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
 
-        body: JSON.stringify({
-            event: eventType
-        })
+                const context = canvas.getContext("2d");
+                context.drawImage(
+                    video, 0, 0, canvas.width, canvas.height
+                );
 
-    });
+                const imageBlob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, "image/jpeg", 0.7);
+                });
 
-}
+                if (!imageBlob) return;
 
+                const formData = new FormData();
+                formData.append("image", imageBlob, "frame.jpg");
 
-document.addEventListener("visibilitychange", function() {
+                const response = await fetch("/detect-phone", {
+                    method: "POST",
+                    body: formData
+                });
 
+                if (!response.ok) {
+                    console.error(
+                        "Phone detection request failed:",
+                        response.status
+                    );
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.phone_detected) {
+                    phoneStatus.textContent =
+                        "⚠️ Mobile phone detected!";
+                    phoneStatus.style.color = "red";
+
+                    if (!phoneDetectedPreviously) {
+                        sendProctoringEvent("mobile_phone_detected");
+                    }
+
+                    phoneDetectedPreviously = true;
+                } else {
+                    phoneStatus.textContent =
+                        "✅ No mobile phone detected.";
+                    phoneStatus.style.color = "green";
+
+                    phoneDetectedPreviously = false;
+                }
+            } catch (error) {
+                console.error("Phone detection error:", error);
+            } finally {
+                phoneCheckRunning = false;
+            }
+        }
+
+        // -----------------------------
+        // Start webcam and detection
+        // -----------------------------
+
+        async function startCamera() {
+            try {
+                if (!navigator.mediaDevices?.getUserMedia) {
+                    throw new Error("Camera access is unavailable.");
+                }
+
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                video.srcObject = stream;
+                await video.play();
+
+                faceStatus.textContent = "Camera started.";
+
+                detectFace();
+
+                // Run phone detection every 3 seconds.
+                setInterval(detectPhone, 3000);
+
+            } catch (error) {
+                console.error("Camera startup error:", error);
+                faceStatus.textContent =
+                    "⚠️ Camera unavailable. Check browser permissions.";
+                faceStatus.style.color = "red";
+            }
+        }
+
+        // -----------------------------
+        // Tab-switch monitoring
+        // ---------------------
+document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-
         tabWarning = true;
-
         sendProctoringEvent("tab_switch");
 
-    } else {
-
-        tabWarning = true;
-
-        faceStatus.innerText =
+        faceStatus.textContent =
             "⚠️ Tab switch detected! Please remain on the exam.";
-
+        faceStatus.style.color = "red";
+    } else {
+        faceStatus.textContent =
+            "⚠️ Tab switch detected! Please remain on the exam.";
         faceStatus.style.color = "red";
 
         setTimeout(() => {
-
             tabWarning = false;
-
         }, 3000);
-
     }
-
 });
 
 
-let time = Number("{{ test[3] }}") * 60;
 
-const timer = document.createElement("h2");
+        // -----------------------------
+        // Exam timer
+        // -----------------------------
 
-timer.id = "timer";
+        let time = Number("{{ test[3] }}") * 60;
+        let submitted = false;
 
-timer.style.textAlign = "center";
+        const timer = document.createElement("h2");
+        timer.id = "timer";
+        timer.style.textAlign = "center";
+        main.prepend(timer);
 
-document.querySelector("main").prepend(timer);
+        const form = document.querySelector("form");
 
+        function updateTimer() {
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
 
-const form = document.querySelector("form");
+            timer.textContent =
+                "⏱️ Time Remaining: " +
+                minutes + ":" +
+                seconds.toString().padStart(2, "0");
 
-let submitted = false;
+            if (time <= 0) {
+                if (!submitted) {
+                    submitted = true;
+                    form.requestSubmit();
+                }
+                return;
+            }
 
-
-function updateTimer() {
-
-    const minutes =
-        Math.floor(time / 60);
-
-    const seconds =
-        time % 60;
-
-    timer.innerText =
-        "⏱️ Time Remaining: " +
-        minutes +
-        ":" +
-        seconds.toString().padStart(2, "0");
-
-
-    if (time <= 0) {
-
-        if (!submitted) {
-
-            submitted = true;
-
-            form.submit();
-
+            time--;
         }
 
-        return;
+        form.addEventListener("submit", () => {
+            submitted = true;
+        });
 
-    }
+        updateTimer();
 
-    time--;
+        const timerInterval = setInterval(() => {
+            if (submitted) {
+                clearInterval(timerInterval);
+                return;
+            }
+            updateTimer();
+        }, 1000);
 
-}
-
-
-setInterval(updateTimer, 1000);
-
-updateTimer();
-
-startCamera();
-
-</script>
-
-
+        startCamera();
+    </script>
 </body>
 </html>
+```

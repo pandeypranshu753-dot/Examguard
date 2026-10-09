@@ -9,17 +9,15 @@
 
     <title>CSE Exam | ExamGuard</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
     <style>
-
         .camera-box {
             background: white;
             padding: 20px;
             margin-bottom: 25px;
             border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,.08);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .08);
             text-align: center;
         }
 
@@ -55,12 +53,10 @@
             font-size: 16px;
             cursor: pointer;
         }
-
     </style>
 
 </head>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
-
 
 <body>
 
@@ -75,8 +71,6 @@
         </nav>
 
     </header>
-
-
     <div class="dashboard">
 
         <h1>CSE Online Examination</h1>
@@ -84,28 +78,20 @@
         <p class="dashboard-subtitle">
             Answer all 20 questions before submitting your exam.
         </p>
-
-
         <!-- CAMERA PROCTORING -->
 
         <div class="camera-box">
 
             <h3>📷 Exam Proctoring</h3>
 
-            <video id="camera"
-                   autoplay
-                   playsinline>
+            <video id="camera" autoplay playsinline>
             </video>
 
             <p id="camera-status">
                 Requesting camera access...
             </p>
             <p id="tab-warning" style="color:red; font-weight:bold;"></p>
-
-
         </div>
-
-
         <!-- EXAM -->
 
         <div class="dashboard-card" style="width: 100%;">
@@ -114,11 +100,7 @@
                 Time Remaining:
                 <span id="timer">30:00</span>
             </h2>
-
-
             <form action="/result" method="POST">
-
-
                 <!-- QUESTION 1 -->
 
                 <div class="question">
@@ -148,8 +130,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 2 -->
 
                 <div class="question">
@@ -160,7 +140,7 @@
 
                     <label>
                         <input type="radio" name="q2" value="a">
-                                                CSS
+                        CSS
                     </label>
 
                     <label>
@@ -179,8 +159,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 3 -->
 
                 <div class="question">
@@ -210,8 +188,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 4 -->
 
                 <div class="question">
@@ -221,7 +197,7 @@
                     </h3>
 
                     <label>
-                        <input type="radio" name="q4" value="a" >
+                        <input type="radio" name="q4" value="a">
                         Windows
                     </label>
 
@@ -241,8 +217,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 5 -->
 
                 <div class="question">
@@ -272,8 +246,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 6 -->
 
                 <div class="question">
@@ -303,8 +275,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 7 -->
 
                 <div class="question">
@@ -334,8 +304,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 8 -->
 
                 <div class="question">
@@ -345,7 +313,7 @@
                     </h3>
 
                     <label>
-                        <input type="radio" name="q8" value="a" >
+                        <input type="radio" name="q8" value="a">
                         Python
                     </label>
 
@@ -365,8 +333,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 9 -->
 
                 <div class="question">
@@ -376,7 +342,7 @@
                     </h3>
 
                     <label>
-                        <input type="radio" name="q9" value="a" >
+                        <input type="radio" name="q9" value="a">
                         Random Access Memory
                     </label>
 
@@ -396,8 +362,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 10 -->
 
                 <div class="question">
@@ -427,8 +391,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 11 -->
 
                 <div class="question">
@@ -458,8 +420,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 12 -->
 
                 <div class="question">
@@ -489,8 +449,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 13 -->
 
                 <div class="question">
@@ -520,8 +478,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 14 -->
 
                 <div class="question">
@@ -551,8 +507,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 15 -->
 
                 <div class="question">
@@ -582,8 +536,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 16 -->
 
                 <div class="question">
@@ -613,8 +565,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 17 -->
 
                 <div class="question">
@@ -644,8 +594,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 18 -->
 
                 <div class="question">
@@ -675,8 +623,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 19 -->
 
                 <div class="question">
@@ -706,8 +652,6 @@
                     </label>
 
                 </div>
-
-
                 <!-- QUESTION 20 -->
 
                 <div class="question">
@@ -737,8 +681,6 @@
                     </label>
 
                 </div>
-
-
                 <button type="submit" class="submit-btn">
                     Submit Exam
                 </button>
@@ -748,254 +690,242 @@
         </div>
 
     </div>
-
-
     <!-- CAMERA SCRIPT -->
 
-   <script>
+    <script>
 
-const video = document.getElementById("camera");
-const cameraStatus = document.getElementById("camera-status");
-const tabWarning = document.getElementById("tab-warning");
+        const video = document.getElementById("camera");
+        const cameraStatus = document.getElementById("camera-status");
+        const tabWarning = document.getElementById("tab-warning");
 
-let examSubmitted = false;
-let tabSwitchCount = 0;
+        let examSubmitted = false;
+        let tabSwitchCount = 0;
+        /* =========================
+           FACE DETECTION
+        ========================= */
 
-
-/* =========================
-   FACE DETECTION
-========================= */
-
-const faceDetection = new FaceDetection({
-    locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
-});
-
-faceDetection.setOptions({
-    model: "short",
-    minDetectionConfidence: 0.5
-});
-
-let lastFaceStatus = null;
-
-faceDetection.onResults(function(results) {
-
-    let currentFaceStatus;
-
-    if (results.detections.length === 0) {
-
-        currentFaceStatus = "no_face_detected";
-
-        cameraStatus.innerText =
-            "⚠️ No face detected!";
-
-    } else if (results.detections.length > 1) {
-
-        currentFaceStatus = "multiple_faces";
-
-        cameraStatus.innerText =
-            "⚠️ Multiple faces detected!";
-
-    } else {
-
-        currentFaceStatus = "face_detected";
-
-        cameraStatus.innerText =
-            "Face detected. Proctoring active.";
-
-    }
-
-    if (currentFaceStatus !== lastFaceStatus) {
-
-        lastFaceStatus = currentFaceStatus;
-
-        fetch("/proctoring-event", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                event: currentFaceStatus
-            })
+        const faceDetection = new FaceDetection({
+            locateFile: (file) =>
+                `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
         });
 
-    }
+        faceDetection.setOptions({
+            model: "short",
+            minDetectionConfidence: 0.5
+        });
 
-});
+        let lastFaceStatus = null;
 
+        faceDetection.onResults(function (results) {
 
-/* =========================
-   CAMERA
-========================= */
+            let currentFaceStatus;
 
-navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: false
-})
-.then(function(stream) {
+            if (results.detections.length === 0) {
 
-    video.srcObject = stream;
+                currentFaceStatus = "no_face_detected";
 
-    cameraStatus.innerText =
-        "Camera is active. Proctoring is enabled.";
+                cameraStatus.innerText =
+                    "⚠️ No face detected!";
 
-})
-.catch(function(error) {
+            } else if (results.detections.length > 1) {
 
-    console.error(error);
+                currentFaceStatus = "multiple_faces";
 
-    cameraStatus.innerText =
-        "❌ Camera access denied or unavailable.";
+                cameraStatus.innerText =
+                    "⚠️ Multiple faces detected!";
 
-});
+            } else {
 
+                currentFaceStatus = "face_detected";
 
-/* =========================
-   RUN FACE DETECTION
-========================= */
+                cameraStatus.innerText =
+                    "Face detected. Proctoring active.";
 
-setInterval(async function() {
+            }
 
-    if (video.readyState >= 2) {
+            if (currentFaceStatus !== lastFaceStatus) {
 
-        try {
+                lastFaceStatus = currentFaceStatus;
 
-            await faceDetection.send({
-                image: video
+                fetch("/proctoring-event", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        event: currentFaceStatus
+                    })
+                });
+
+            }
+
+        });
+        /* =========================
+           CAMERA
+        ========================= */
+
+        navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false
+        })
+            .then(function (stream) {
+
+                video.srcObject = stream;
+
+                cameraStatus.innerText =
+                    "Camera is active. Proctoring is enabled.";
+
+            })
+            .catch(function (error) {
+
+                console.error(error);
+
+                cameraStatus.innerText =
+                    "❌ Camera access denied or unavailable.";
+
             });
+        /* =========================
+           RUN FACE DETECTION
+        ========================= */
 
-        } catch (error) {
+        setInterval(async function () {
 
-            console.error("Face detection error:", error);
+            if (video.readyState >= 2) {
 
-        }
+                try {
 
-    }
+                    await faceDetection.send({
+                        image: video
+                    });
 
-}, 500);
+                } catch (error) {
 
+                    console.error("Face detection error:", error);
 
-/* =========================
-   TAB SWITCH DETECTION
-========================= */
+                }
 
-let lastVisibilityState = "visible";
-let lastTabSwitchTime = 0;
+            }
 
-document.addEventListener("visibilitychange", function() {
-    if (examSubmitted) {
-        return;
-    }
+        }, 500);
+        /* =========================
+           TAB SWITCH DETECTION
+        ========================= */
 
-    const currentState = document.visibilityState;
+        let lastVisibilityState = "visible";
+        let lastTabSwitchTime = 0;
 
-    // Only process an actual visibility change
-    if (currentState === lastVisibilityState) {
-        return;
-    }
+        document.addEventListener("visibilitychange", function () {
+            if (examSubmitted) {
+                return;
+            }
 
-    lastVisibilityState = currentState;
+            const currentState = document.visibilityState;
 
-    if (currentState === "hidden") {
-        const now = Date.now();
+            // Only process an actual visibility change
+            if (currentState === lastVisibilityState) {
+                return;
+            }
 
-if (now - lastTabSwitchTime < 2000) {
-    return;
-}
+            lastVisibilityState = currentState;
 
-lastTabSwitchTime = now;
+            if (currentState === "hidden") {
+                const now = Date.now();
 
-        tabSwitchCount++;
+                if (now - lastTabSwitchTime < 2000) {
+                    return;
+                }
 
-        tabWarning.innerText =
-            "⚠️ WARNING: You switched away from the exam tab! " +
-            "Warning count: " + tabSwitchCount;
+                lastTabSwitchTime = now;
 
-        console.log("WARNING: Exam tab switched!");
+                tabSwitchCount++;
 
-        fetch("/proctoring-event", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                event: "tab_switch",
-                warning_count: tabSwitchCount
-            })
+                tabWarning.innerText =
+                    "⚠️ WARNING: You switched away from the exam tab! " +
+                    "Warning count: " + tabSwitchCount;
+
+                console.log("WARNING: Exam tab switched!");
+
+                fetch("/proctoring-event", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        event: "tab_switch",
+                        warning_count: tabSwitchCount
+                    })
+                });
+
+            } else {
+
+                tabWarning.innerText =
+                    "⚠️ WARNING: You returned to the exam after switching tabs. " +
+                    "Warning count: " + tabSwitchCount;
+
+                fetch("/proctoring-event", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        event: "returned_to_exam",
+                        warning_count: tabSwitchCount
+                    })
+                });
+
+            }
+
         });
+        /* =========================
+           TIMER
+        ========================= */
 
-    } else {
+        let time = 30 * 60;
 
-        tabWarning.innerText =
-            "⚠️ WARNING: You returned to the exam after switching tabs. " +
-            "Warning count: " + tabSwitchCount;
+        let timer = setInterval(function () {
 
-        fetch("/proctoring-event", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                event: "returned_to_exam",
-                warning_count: tabSwitchCount
-            })
-        });
+            let minutes = Math.floor(time / 60);
+            let seconds = time % 60;
 
-    }
+            document.getElementById("timer").innerHTML =
+                minutes + ":" +
+                (seconds < 10 ? "0" : "") +
+                seconds;
 
-});
-/* =========================
-   TIMER
-========================= */
+            if (time <= 0) {
 
-let time = 30 * 60;
+                clearInterval(timer);
 
-let timer = setInterval(function() {
+                if (!examSubmitted) {
 
-    let minutes = Math.floor(time / 60);
-    let seconds = time % 60;
+                    examSubmitted = true;
 
-    document.getElementById("timer").innerHTML =
-        minutes + ":" +
-        (seconds < 10 ? "0" : "") +
-        seconds;
+                    alert(
+                        "Time is up! Your exam will be submitted automatically."
+                    );
 
-    if (time <= 0) {
+                    document.querySelector("form").submit();
 
-        clearInterval(timer);
+                }
 
-        if (!examSubmitted) {
+                return;
+
+            }
+
+            time--;
+
+        }, 1000);
+        /* =========================
+           PREVENT DOUBLE SUBMISSION
+        ========================= */
+
+        document.querySelector("form").addEventListener("submit", function () {
 
             examSubmitted = true;
 
-            alert(
-                "Time is up! Your exam will be submitted automatically."
-            );
+        });
 
-            document.querySelector("form").submit();
-
-        }
-
-        return;
-
-    }
-
-    time--;
-
-}, 1000);
-
-
-/* =========================
-   PREVENT DOUBLE SUBMISSION
-========================= */
-
-document.querySelector("form").addEventListener("submit", function() {
-
-    examSubmitted = true;
-
-});
-
-</script>
+    </script>
 
 </body>
 
